@@ -1,7 +1,7 @@
 buildir = .
 include $(buildir)/make.config
 
-objects = dvr input.o T.o key.o points.o V.o sort.o
+objects = dvr input.o T.o key.o points.o V.o sort.o wave.o
 
 all : $(objects)
 	cp dvr $(bindir)/dvr
@@ -24,11 +24,14 @@ linal.o : linal.f90 sort.o
 points.o : points.f90 key.o
 	$(FC) $(FFLAGS) -c points.f90 key.o
 
+wave.o : wave.f90 key.o
+	$(FC) $(FFLAGS) -c wave.f90 key.o
+
 T.o : T.f90 key.o
 	$(FC) $(FFLAGS) -c T.f90 key.o
 
 V.o : V.f90 key.o
 	$(FC) $(FFLAGS) -c V.f90 key.o
 
-dvr : dvr.f90 input.o T.o key.o points.o V.o linal.o sort.o
-	$(FC) $(FFLAGS) $(LINAL) -o dvr dvr.f90 input.o T.o key.o points.o V.o linal.o sort.o
+dvr : dvr.f90 input.o T.o key.o points.o V.o linal.o sort.o wave.o
+	$(FC) $(FFLAGS) $(LINAL) -o dvr dvr.f90 input.o T.o key.o points.o V.o linal.o sort.o wave.o

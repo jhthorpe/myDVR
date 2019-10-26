@@ -15,7 +15,8 @@ subroutine input_get(ndim,box,delx,pot,npoints,Vc)
   write(*,*) "Enter potential type"
   write(*,*) "Options:"
   write(*,*) "1 -> Harmonic Oscillator"
-  write(*,*) "2 -> Particle in a Stadium"
+  write(*,*) "2 -> Particle in a Box" 
+  write(*,*) "3 -> Particle in a Stadium"
   read(*,*) pot
   write(*,*)
   
@@ -27,9 +28,13 @@ subroutine input_get(ndim,box,delx,pot,npoints,Vc)
   allocate(delx(0:ndim-1))
   allocate(npoints(0:ndim-1))
 
-  write(*,*) "Enter V cutoff..."
-  read(*,*) Vc
-  write(*,*)
+  if (pot .eq. 1) then
+    write(*,*) "Enter V cutoff..."
+    read(*,*) Vc
+    write(*,*)
+  else
+    Vc = 0.1D0
+  end if
 
   write(*,*) "Enter bounding box..."
   do i=0,ndim-1

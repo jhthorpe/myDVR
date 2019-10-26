@@ -136,10 +136,20 @@ SUBROUTINE linal_dsyevx(N,IU,LWORK,A,W,Z,error)
   END IF
 
   !Standardize the eigenvectors
-  DO j=0,IU-1
-    i = MAXLOC(ABS(Z(0:N-1,j)),1)-1
-    IF (Z(i,j) .LT. 0.0D0) Z(0:N-1,j) = -1.0D0*Z(0:N-1,j)
+  !DO j=0,IU-1
+  !  i = MAXLOC(ABS(Z(0:N-1,j)),1)-1
+  !  IF (Z(i,j) .LT. 0.0D0) Z(0:N-1,j) = -1.0D0*Z(0:N-1,j)
+  !END DO
+
+  OPEN(FILE='eigs.dat',UNIT=100,STATUS='REPLACE')
+  DO i=0,IU-1
+    WRITE(100,*) "Eigenvalue #",i,W(i)
+    DO j=0,N-1
+      WRITE(100,*) j,Z(j,i)
+    END DO
+    WRITE(100,*) "------------------------------------------------------"
   END DO
+  CLOSE(UNIT=100)
 
 END SUBROUTINE linal_dsyevx
 

@@ -17,17 +17,24 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
   real(kind=8), dimension(:), allocatable :: R_temp
   integer, dimension(:), allocatable :: I_temp
   integer, dimension(0:ndim-1) :: arry_i,key
-  real(kind=8), dimension(0:ndim-1) :: phi
-  real(kind=8) :: V,mreal
+  real(kind=8), dimension(0:ndim-1) :: phi,L
+  real(kind=8) :: V
   integer :: i
 
-  mreal = HUGE(mreal)
   write(*,*) "Calculating potential elements"
+  !Harmonic Oscillator
   if (pot .eq. 1) then
     write(*,*) "Enter HO force constants..."
     do i=0,ndim-1
       write(*,*) "dimension ",i+1
       read(*,*) phi(i)
+    end do
+  !Particle in a Box
+  else if (pot .eq. 2) then
+    write(*,*) "Enter box length..."
+    do i=0,ndim-1
+      write(*,*) "dimension ",i+1
+      read(*,*) L(i)
     end do
   else
     write(*,*) "Sorry, this potential not yet coded"
@@ -45,6 +52,8 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
     call key_eval(ndim,key,npoints,i,arry_i)
     if (pot .eq. 1) then 
       V = V_HO(ndim,npoints,phi,delx,arry_i)
+    else if (pot .EQ. 2) then
+      V = V_PIB(ndim,npoints,L,delx,arry_i)
     end if
     if (V .le. Vc) then
       R_temp(Np) = V
@@ -52,11 +61,6 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
       Np = Np + 1
     end if
   end do
-
-  if (Np .LT. 1) then
-    write(*,*) "No gridpoints were found that were within the potential cutoff..."
-    stop
-  end if
 
   !Store trimmed points and their ids
 
@@ -87,5 +91,21 @@ real(kind=8) function V_HO(ndim,npoints,phi,delx,arry_i)
   end do
   V_HO = val
 end function V_HO
+
+real(kind=8) function V_PIB(ndim,npoints,L,delx,arry_i)
+  implicit none
+  real(kind=8), dimension(0:), intent(in) :: delx,L
+  integer, dimension(0:), intent(in) :: arry_i,npoints
+  integer, intent(in) :: ndim
+  real(kind=8) :: val,x
+  integer :: k 
+  val = 0.0D0
+  do k=0,ndim-1
+    x = delx(k)*(arry_i(k)-npoints(k)/2)
+    if ((x .GT. 0.5D0*L(k)) .OR. (x .LT. -0.5D0*L(k))) val = HUGE(val)
+    if ((x .GT. 0.5D0*L(k)) .OR. (x .LT. -0.5D0*L(k))) write(*,*) "x bad",x
+  end do
+  V_PIB = val
+end function V_PIB
 
 end module V

@@ -1,5 +1,5 @@
 module points
-  USE key
+  use key 
   implicit none
   
 contains

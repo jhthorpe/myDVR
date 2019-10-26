@@ -13,6 +13,7 @@ program dvr
   use T
   use points
   use linal
+  use wave
 
   implicit none
   real(kind=8), dimension(:,:), allocatable :: H,Psi  
@@ -33,13 +34,6 @@ program dvr
   call points_trim(ndim,Np,npoints,delx,id_vec,H) 
   call T_calc(ndim,npoints,delx,Np,id_vec,H)
 
-  write(*,*) "Testing"
-  write(*,*)
-  do i=0,Np-1
-    write(*,*) H(i,0:Np-1)
-  end do
-  write(*,*)
-
   allocate(eval(0:Np-1))
   allocate(Psi(0:Np-1,0:Np-1))
   write(*,*) "Enter number of eigenvalues"
@@ -53,5 +47,8 @@ program dvr
   do i=0,neig-1
     write(*,*) i,eval(i)
   end do
+  write(*,*)
+
+  call wave_print(ndim,Np,npoints,delx,id_vec,neig,eval,Psi)
 
 end program dvr

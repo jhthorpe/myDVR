@@ -1,0 +1,33 @@
+ Enter potential type
+ Options:
+ 1 -> Harmonic Oscillator
+ 2 -> Particle in a Stadium
+
+ Enter number of dimensions
+
+ Enter V cutoff...
+
+ Enter bounding box...
+ dimension            1
+
+ Enter number of gridpoints...
+ dimension            1
+
+ Using the following gridsize
+ dimension           1  0.50000000000000000     
+
+
+ Writing gridpoints to full_grid.txt
+ Calculating potential elements
+ Enter HO force constants...
+ dimension            1
+
+ Writing gridpoints to trim_grid.txt
+ Writing potentials to trim_V.txt
+ Calculating kinetic elements
+ Enter number of eigenvalues
+ Eigenvalues
+         QN      λ
+           0  0.49999999999998579     
+           1   1.4999999999999916     
+           2   2.4999999999998574     
