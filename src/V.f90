@@ -36,6 +36,16 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
       write(*,*) "dimension ",i+1
       read(*,*) L(i)
     end do
+  !Particle in a Stadium
+  else if (pot .eq. 3) then
+    if (ndim .ne. 2) then
+      write(*,*) "You need 2 dimensions for PIS"
+      stop
+    end if
+    write(*,*) "Enter X distance"
+    read(*,*) L(0)
+    write(*,*) "Enter Y distance"
+    read(*,*) L(1) 
   else
     write(*,*) "Sorry, this potential not yet coded"
     STOP
@@ -54,6 +64,8 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
       V = V_HO(ndim,npoints,phi,delx,arry_i)
     else if (pot .EQ. 2) then
       V = V_PIB(ndim,npoints,L,delx,arry_i)
+    else if (pot .eq. 3) then
+      V = V_PIS(ndim,npoints,L,delx,arry_i)
     end if
     if (V .le. Vc) then
       R_temp(Np) = V
@@ -77,6 +89,16 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
 
 end subroutine V_calc
 
+!---------------------------------------------------------------
+! V_HO	
+!	Calculates multidimensional HO potential
+!	at a given point
+!---------------------------------------------------------------
+! ndim		: int, number of dimensions
+! npoints	: 1D int, number of points per dimension
+! phi		: 1D real*8, force constants
+! delx		: 1D real*8, delta x for dimensions
+! arry_i	: 1D int, gridpoint ids
 real(kind=8) function V_HO(ndim,npoints,phi,delx,arry_i)
   implicit none
   real(kind=8), dimension(0:), intent(in) :: delx,phi
@@ -92,6 +114,16 @@ real(kind=8) function V_HO(ndim,npoints,phi,delx,arry_i)
   V_HO = val
 end function V_HO
 
+!---------------------------------------------------------------
+! V_PIB	
+!	Calculates multidimensional PIB potential
+!	at a given point
+!---------------------------------------------------------------
+! ndim		: int, number of dimensions
+! npoints	: 1D int, number of points per dimension
+! L		: 1D real*8, box lengths
+! delx		: 1D real*8, delta x for dimensions
+! arry_i	: 1D int, gridpoint ids
 real(kind=8) function V_PIB(ndim,npoints,L,delx,arry_i)
   implicit none
   real(kind=8), dimension(0:), intent(in) :: delx,L
@@ -103,9 +135,48 @@ real(kind=8) function V_PIB(ndim,npoints,L,delx,arry_i)
   do k=0,ndim-1
     x = delx(k)*(arry_i(k)-npoints(k)/2)
     if ((x .GT. 0.5D0*L(k)) .OR. (x .LT. -0.5D0*L(k))) val = HUGE(val)
-    if ((x .GT. 0.5D0*L(k)) .OR. (x .LT. -0.5D0*L(k))) write(*,*) "x bad",x
   end do
   V_PIB = val
 end function V_PIB
+
+!---------------------------------------------------------------
+! V_PIS
+!	Calculates multidimensional PIS potential
+!	at a given point
+! 	
+!	The "student sections", or "field goals" (the
+!	semicircles) protrude outsize of the X box length.
+!---------------------------------------------------------------
+! ndim		: int, number of dimensions
+! npoints	: 1D int, number of points per dimension
+! L		: 1D real*8, box lengths (0=x,1=y)
+! delx		: 1D real*8, delta x for dimensions
+! arry_i	: 1D int, gridpoint ids
+real(kind=8) function V_PIS(ndim,npoints,L,delx,arry_i)
+  implicit none
+  real(kind=8), dimension(0:), intent(in) :: delx,L
+  integer, dimension(0:), intent(in) :: arry_i,npoints
+  integer, intent(in) :: ndim
+  real(kind=8) :: val,x,y,r
+  val = 0.0D0
+  y = delx(1)*(arry_i(1)-npoints(1)/2) 
+  !if outside y-box
+  if (abs(y) .gt. 0.5D0*L(1)) then
+    val = HUGE(val)
+  ! if inside y-box
+  else
+    x = delx(0)*(arry_i(0)-npoints(0)/2)
+    !if outside x-box
+    if (abs(x) .gt. 0.5D0*L(0)) then
+      r = sqrt((abs(x) - 0.5D0*L(0))**2.0D0 &
+               + abs(y)**2.0D0)
+      if (r .gt. 0.5D0*L(1)) val = HUGE(val)
+    end if
+  end if 
+
+  V_PIS = val
+
+end function V_PIS
+!---------------------------------------------------------------
 
 end module V

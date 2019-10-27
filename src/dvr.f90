@@ -38,7 +38,7 @@ program dvr
   allocate(Psi(0:Np-1,0:Np-1))
   write(*,*) "Enter number of eigenvalues"
   read(*,*) neig
-  if (neig .gt. N) neig = Np
+  if (neig .gt. Np) neig = Np
   call linal_dsyevx_lwork(Np,neig,lwork,error)
   call linal_dsyevx(Np,neig,lwork,H,eval,Psi,error)
  
@@ -50,5 +50,11 @@ program dvr
   write(*,*)
 
   call wave_print(ndim,Np,npoints,delx,id_vec,neig,eval,Psi)
+
+  Vc = 0.0D0
+  do i=0,Np-1
+    Vc = Vc + Psi(i,0)**2.0D0 
+  end do
+  write(*,*) "Psi^2 of 0 is", Vc
 
 end program dvr

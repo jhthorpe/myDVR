@@ -10,18 +10,22 @@
 
  Enter bounding box...
  dimension            1
+ dimension            2
 
  Enter number of gridpoints...
  dimension            1
+ dimension            2
 
  Using the following gridsize
- dimension           1   5.0000000000000003E-002
+ dimension           1  0.50000000000000000     
+ dimension           2  0.50000000000000000     
 
 
  Writing gridpoints to full_grid.txt
  Calculating potential elements
  Enter HO force constants...
  dimension            1
+ dimension            2
 
  Writing gridpoints to trim_grid.txt
  Writing potentials to trim_V.txt
@@ -29,8 +33,9 @@
  Enter number of eigenvalues
  Eigenvalues
          QN      λ
-           0  0.50030481196861831     
-           1   1.5049020687731485     
-           2   2.5343394842444193     
+           0   1.2071067811873006     
+           1   2.2071067812381888     
+           2   2.6213203442313948     
+           3   3.2071067825309463     
 
  Wavefunction plots saved as 'wave_X.dat'

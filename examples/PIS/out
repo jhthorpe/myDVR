@@ -3,34 +3,44 @@
  1 -> Harmonic Oscillator
  2 -> Particle in a Box
  3 -> Particle in a Stadium
+3
 
  Enter number of dimensions
-
- Enter V cutoff...
+2
 
  Enter bounding box...
  dimension            1
+1.5
+ dimension            2
+0.6
 
  Enter number of gridpoints...
  dimension            1
+100
+ dimension            2
+100
 
  Using the following gridsize
- dimension           1   5.0000000000000003E-002
+ dimension           1   1.4999999999999999E-002
+ dimension           2   6.0000000000000001E-003
 
 
  Writing gridpoints to full_grid.txt
  Calculating potential elements
- Enter HO force constants...
- dimension            1
+ Enter X distance
+1.0
+ Enter Y distance
+0.5
 
  Writing gridpoints to trim_grid.txt
  Writing potentials to trim_V.txt
  Calculating kinetic elements
  Enter number of eigenvalues
+1
  Eigenvalues
          QN      λ
-           0  0.50030481196861831     
-           1   1.5049020687731485     
-           2   2.5343394842444193     
+           0   21.956173802387635     
 
  Wavefunction plots saved as 'wave_X.dat'
+ Psi^2 of 0 is  0.99999999999999956     
+
