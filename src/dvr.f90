@@ -30,6 +30,7 @@ program dvr
   end do
 
   call points_full(ndim,N,npoints,delx) 
+  if (pot .eq. -4) stop
   call V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
   call points_trim(ndim,Np,npoints,delx,id_vec,H) 
   call T_calc(ndim,npoints,delx,Np,id_vec,H)

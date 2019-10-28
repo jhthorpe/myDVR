@@ -15,29 +15,16 @@
  dimension            2
 
  Using the following gridsize
- dimension           1   2.5000000000000001E-002
- dimension           2   8.3333333333333332E-003
- Number of gridpoints per dimension
-          61
-          61
+ dimension           1   1.0000000000000000E-002
+ dimension           2   3.3333333333333335E-003
 
 
  Writing gridpoints to full_grid.txt
  Calculating potential elements
  Enter X distance
  Enter Y distance
- Trimmed Hamiltonian is dimensions        3373
 
  Writing gridpoints to trim_grid.txt
  Writing potentials to trim_V.txt
  Calculating kinetic elements
  Enter number of eigenvalues
- Eigenvalues
-         QN      λ
-           0   21.084458857681970     
-           1   28.398595870485224     
-           2   40.438660104327930     
-           3   57.019715541135142     
-
- Wavefunction plots saved as 'wave_X.dat'
- Psi^2 of 0 is  0.99999999999999778     

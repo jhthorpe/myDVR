@@ -17,6 +17,7 @@ subroutine input_get(ndim,box,delx,pot,npoints,Vc)
   write(*,*) "1 -> Harmonic Oscillator"
   write(*,*) "2 -> Particle in a Box" 
   write(*,*) "3 -> Particle in a Stadium"
+  write(*,*) "4 -> General potential (-4 to generate)"
   read(*,*) pot
   write(*,*)
   
@@ -28,7 +29,7 @@ subroutine input_get(ndim,box,delx,pot,npoints,Vc)
   allocate(delx(0:ndim-1))
   allocate(npoints(0:ndim-1))
 
-  if (pot .eq. 1) then
+  if (pot .eq. 1 .or. pot .eq. 4) then
     write(*,*) "Enter V cutoff..."
     read(*,*) Vc
     write(*,*)
@@ -56,8 +57,13 @@ subroutine input_get(ndim,box,delx,pot,npoints,Vc)
     delx(i) = 2*box(i)/npoints(i)
     write(*,*) "dimension",i+1,delx(i)
   end do
-  write(*,*)
   npoints = npoints+1
+ 
+  write(*,*) "Number of gridpoints per dimension"
+  do i=0,ndim-1
+    write(*,*) npoints(i)
+  end do 
+  write(*,*)
 
 end subroutine
   

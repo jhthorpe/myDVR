@@ -19,7 +19,7 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
   integer, dimension(0:ndim-1) :: arry_i,key
   real(kind=8), dimension(0:ndim-1) :: phi,L
   real(kind=8) :: V
-  integer :: i
+  integer :: i,Vid
 
   write(*,*) "Calculating potential elements"
   !Harmonic Oscillator
@@ -46,6 +46,11 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
     read(*,*) L(0)
     write(*,*) "Enter Y distance"
     read(*,*) L(1) 
+  !General Potential
+  else if (pot .eq. 4) then
+    Vid = 200
+    write(*,*) "Reading potential from V.in"
+    open(file='V.in',unit=Vid,status='old')
   else
     write(*,*) "Sorry, this potential not yet coded"
     STOP
@@ -66,6 +71,8 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
       V = V_PIB(ndim,npoints,L,delx,arry_i)
     else if (pot .eq. 3) then
       V = V_PIS(ndim,npoints,L,delx,arry_i)
+    else if (pot .eq. 4) then
+      V = V_GEN(ndim,npoints,Vid,delx,arry_i,i)
     end if
     if (V .le. Vc) then
       R_temp(Np) = V
@@ -74,7 +81,12 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
     end if
   end do
 
+  if (pot .eq. 4) then
+    close(unit=Vid)
+  end if
+
   !Store trimmed points and their ids
+  write(*,*) "Trimmed Hamiltonian is dimension",Np
 
   allocate(id_vec(0:Np-1))
   id_vec(0:Np-1) = I_temp(0:Np-1)
@@ -177,6 +189,45 @@ real(kind=8) function V_PIS(ndim,npoints,L,delx,arry_i)
   V_PIS = val
 
 end function V_PIS
+
+!---------------------------------------------------------------
+! V_GEN	
+!	Reads in potential from V.in file	
+!	Checks the geometries
+!---------------------------------------------------------------
+! ndim		: int, number of dimensions
+! npoints	: 1D int, number of points per dimension
+! Vid		: int, input file id 
+! delx		: 1D real*8, delta x for dimensions
+! arry_i	: 1D int, gridpoint ids
+! num		: int, point number we are supposed to be on
+
+real(kind=8) function V_GEN(ndim,npoints,Vid,delx,arry_i,num)
+  implicit none
+  real(kind=8), dimension(0:), intent(in) :: delx
+  integer, dimension(0:), intent(in) :: arry_i,npoints
+  integer, intent(in) :: ndim,Vid,num
+  real(kind=8), dimension(0:ndim-1) :: xyz,xyz_real
+  real(kind=8) :: val
+  integer :: id,k
+  read(Vid,*) id,xyz(0:ndim-1),val
+  do k=0,ndim-1
+    xyz_real(k) = delx(k)*(arry_i(k)-npoints(k)/2)
+    if (ABS(xyz_real(k) - xyz(k)) .gt. 1.0D-15) then
+      write(*,*) "Point",id,"in V.in had a bad xyz value"
+      close(unit=Vid)
+      stop
+    end if
+  end do
+  if (id .ne. num) then
+    write(*,*) "Point ",id," in V.in had a bad point number"
+    close(unit=Vid)
+    stop
+  else 
+    V_GEN = val
+  end if
+end function V_GEN
+
 !---------------------------------------------------------------
 
 end module V
