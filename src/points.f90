@@ -12,7 +12,6 @@ subroutine points_full(ndim,N,npoints,delx,lb,ub,coord)
   real(kind=8), dimension(0:ndim-1) :: xyz
   integer, dimension(0:ndim-1) :: arry,key
   integer :: i,j
-  write(*,*)
   write(*,*) "Writing gridpoints to full_grid.txt"
   open(file='full_grid.txt',unit=100,status='replace')
   call key_make(ndim,npoints,key)
@@ -36,7 +35,6 @@ subroutine points_trim(ndim,Np,npoints,delx,coord,id_vec,H)
   real(kind=8), dimension(0:ndim-1) :: xyz
   integer, dimension(0:ndim-1) :: arry,key
   integer :: i,j
-  write(*,*)
   write(*,*) "Writing gridpoints to trim_grid.txt"
   write(*,*) "Writing potentials to trim_V.txt"
   open(file='trim_grid.txt',unit=100,status='replace')

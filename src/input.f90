@@ -108,7 +108,6 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         lb(i) = 0.0d0
         ub(i) = delx(i)*N
         npoints(i) = N - 1
-        
 
       !polar
       else if (coord(i) .eq. 3) then
@@ -158,15 +157,44 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   end if
 
   !print output
-  write(*,*) "Grid information for each system"
+  write(*,*) "Grid information for each coordinate"
   write(*,'(1x,A9,4x,A4,6x,A11,5x,A11,9x,A3)') "dimension","type","lower bound","upper bound","Δx"    
   do i=0,ndim-1
     write(*,'(1x,6x,I3,6x,I2,5x,ES12.5,4x,ES12.5,4x,ES12.5)') i+1,coord(i),lb(i),ub(i),delx(i)
   end do
   write(*,*) 
+  call input_save(ndim,npoints,coord,lb,ub,delx)
+  write(*,*) "Grid data saved to grid.dat"
+  write(*,*) 
 
 end subroutine
+
 !---------------------------------------------------------------------
+! input_save
+!	- saves the input given by user in grid.dat so it can be
+!	  used later
+!---------------------------------------------------------------------
+! ndim		: int, number of dimensions
+! npoints	: 1D int, npoints in each dimension
+! coord		: 1D int, coordinate type of each dimension
+! lb		: 1D real*8, lower bounds of each dimension
+! ub		: 1D real*8, upper bounds of each dimension  
+! delx		: 1D real*8, Δx of each dimension
+
+subroutine input_save(ndim,npoints,coord,lb,ub,delx)
+  implicit none
+  real(kind=8), dimension(0:), intent(in) :: lb,ub,delx
+  integer, dimension(0:), intent(in) :: npoints,coord
+  integer, intent(in) :: ndim
+  integer :: i
+  open(file='grid.dat',unit=100,status='replace')
+  write(100,*) ndim
+  do i=0,ndim-1
+    write(100,*) i,coord(i),lb(i),ub(i),delx(i)
+  end do
+  close(unit=100)
+end subroutine input_save
   
+!---------------------------------------------------------------------
 
 end module input
