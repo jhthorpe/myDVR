@@ -1,8 +1,9 @@
 ! H		: 2D real*8, hamiltonian
-! npoints	: 1D int, number of gridnpoints
+! npoints	: 1D int, number of gridnpoints per dim
 ! Vc		: real*8, potential cutoff
 ! delx		: 1D real*8, gridpoint size
-! box		: 1D real*8, bounding box
+! ub		: 1D real*8, upper bounds
+! lb		: 1D real*8, lower bounds
 ! N		: int, number of untrimmed points
 ! Np		: int, number of trimmed points
 ! id_vec	: 1D int, list of original gridpoint numbers
@@ -17,12 +18,12 @@ program dvr
 
   implicit none
   real(kind=8), dimension(:,:), allocatable :: H,Psi  
-  real(kind=8), dimension(:), allocatable :: box,delx,eval
-  integer, dimension(:), allocatable :: npoints,id_vec
+  real(kind=8), dimension(:), allocatable :: lb,ub,delx,eval
+  integer, dimension(:), allocatable :: npoints,id_vec,coord
   real(kind=8) :: Vc
   integer :: ndim,pot,N,Np,i,neig,lwork,error
 
-  call input_get(ndim,box,delx,pot,npoints,Vc)
+  call input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
 
   N = 1
   do i=0,ndim-1
@@ -30,6 +31,7 @@ program dvr
   end do
 
   call points_full(ndim,N,npoints,delx) 
+  stop
   if (pot .eq. -4) stop
   call V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
   call points_trim(ndim,Np,npoints,delx,id_vec,H) 
