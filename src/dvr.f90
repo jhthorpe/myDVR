@@ -27,10 +27,10 @@ program dvr
 
   N = 1
   do i=0,ndim-1
-    N = npoints(i)*N
+    N = (npoints(i)-1)*N
   end do
 
-  call points_full(ndim,N,npoints,delx) 
+  call points_full(ndim,N,npoints,delx,lb,ub,coord) 
   stop
   if (pot .eq. -4) stop
   call V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
@@ -58,6 +58,6 @@ program dvr
   do i=0,Np-1
     Vc = Vc + Psi(i,0)**2.0D0 
   end do
-  write(*,*) "Psi^2 of 0 is", Vc
+  write(*,*) "Psi^2 of ground state is", Vc
 
 end program dvr

@@ -4,10 +4,10 @@ module points
   
 contains
 
-subroutine points_full(ndim,N,npoints,delx)
+subroutine points_full(ndim,N,npoints,delx,lb,ub,coord)
   implicit none
-  real(kind=8), dimension(0:), intent(in) :: delx
-  integer, dimension(0:), intent(in) :: npoints
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub
+  integer, dimension(0:), intent(in) :: npoints,coord
   integer, intent(in) :: ndim,N
   real(kind=8), dimension(0:ndim-1) :: xyz
   integer, dimension(0:ndim-1) :: arry,key
@@ -19,7 +19,8 @@ subroutine points_full(ndim,N,npoints,delx)
   do i=0,N-1
     call key_eval(ndim,key,npoints,i,arry)
     do j=0,ndim-1
-      xyz(j) = delx(j)*(arry(j)-npoints(j)/2) 
+      !xyz(j) = delx(j)*(arry(j)-npoints(j)/2) 
+      xyz(j) = lb(j) + delx(j)*arry(j) 
     end do
     write(100,*) i,xyz(0:ndim-1)
   end do

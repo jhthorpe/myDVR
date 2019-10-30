@@ -14,7 +14,7 @@ subroutine wave_print(ndim,Np,npoints,delx,id_vec,neig,eval,Psi)
   integer, dimension(0:ndim-1) :: arry,key
   integer :: i,j,k,foff
 
-  WRITE(*,*) "Wavefunction plots saved as 'wave_X.dat'"
+  write(*,*) "Wavefunction plots saved as 'wave_X.dat'"
   call execute_command_line('rm wave_[0-9]*.dat')
 
   foff = 100
@@ -94,5 +94,7 @@ subroutine wave_name(id,fname)
   END IF
   WRITE(fname,str_fmt) "wave_",id,".dat"
 end subroutine wave_name
+
+!---------------------------------------------------------------------
 
 end module wave

@@ -58,8 +58,8 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
     Vc = 0.1D0
   end if
 
-  write(*,*) "Enter information for each coordinate"
   !coordinate information
+  write(*,*) "Enter information for each coordinate"
   if (pot .eq. 4 .or. pot .eq. -4) then
     write(*,*) "Coordinate Types:"
     write(*,*) "1 -> -inf, +inf   (cartesian)"
