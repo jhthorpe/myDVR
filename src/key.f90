@@ -48,11 +48,8 @@ subroutine key_eval(ndim,key,npoints,coord,idx,arry)
     ! 3 ->    0,   π, i=1,npoints 
     ! 4 ->    0,  2π, i=0,npoints
     ! 5 ->    a,   b, i=1,npoints
-    if (coord(i) .eq. 1 .or. coord(i) .eq. 2 .or. &
-        coord(i) .eq. 3 .or. coord(i) .eq. 5) then
-      arry(i) = arry(i)+1
-    end if
   end do
+  arry = arry + 1
 end subroutine key_eval
 
 !---------------------------------------------------------------------

@@ -26,7 +26,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   integer, intent(inout) :: ndim,pot
  
   real(kind=8) :: pi
-  integer :: i
+  integer :: i,N
   pi = 3.14159265358979D0
   
   !potential type -- probably remove this later once testing is done
@@ -36,10 +36,16 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   write(*,*) "2 -> Particle in a Box" 
   write(*,*) "3 -> Particle in a Stadium"
   write(*,*) "4 -> General potential (-4 to generate)"
+  write(*,'(1x,A1,1x)',advance='no') ">"
   read(*,*) pot
+  if ((pot .lt. 1 .and. pot .ne. -4) .or. pot .gt. 4) then
+    write(*,*) "That was a bad potential, try again."
+    stop
+  end if
   write(*,*)
   
   write(*,*) "Enter number of dimensions"
+  write(*,'(1x,A1,1x)',advance='no') ">"
   read(*,*) ndim
   write(*,*)
 
@@ -52,6 +58,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   !potential energy cutoff
   if (pot .eq. 1 .or. pot .eq. 4) then
     write(*,*) "Enter V cutoff..."
+    write(*,'(1x,A1,1x)',advance='no') ">"
     read(*,*) Vc
     write(*,*)
   else
@@ -71,57 +78,74 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
 
     do i=0,ndim-1
       write(*,'(1x,A9,1x,I3)') "dimension",i+1
+      write(*,*) "------------------------"
       write(*,*) "Enter coordinate type"
+      write(*,'(1x,A1,1x)',advance='no') ">"
       read(*,*) coord(i)
 
       !cartesian
       if (coord(i) .eq. 1) then
         write(*,*) "type : cartesian"
         write(*,*) "Enter gridpoint spacing"
+        write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) delx(i)
-        write(*,*) "Enter maximum points"
-        read(*,*) npoints(i)
-        lb(i) = -1.0D0*delx(i)*(npoints(i)/2)
-        ub(i) = delx(i)*(npoints(i)/2)
+        write(*,*) "Enter maximum N"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) N 
+        lb(i) = -1.0D0*delx(i)*(N)
+        ub(i) = delx(i)*(N)
+        npoints(i) = 2*N - 1
 
       !radial
       else if (coord(i) .eq. 2) then
         write(*,*) "type : radial"
         write(*,*) "Enter gridpoint spacing"
+        write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) delx(i)
-        write(*,*) "Enter maximum points" 
-        read(*,*) npoints(i)
+        write(*,*) "Enter maximum N" 
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) N 
         lb(i) = 0.0d0
-        ub(i) = delx(i)*npoints(i)
+        ub(i) = delx(i)*N
+        npoints(i) = N - 1
+        
 
       !polar
       else if (coord(i) .eq. 3) then
         write(*,*) "type : polar"
-        write(*,*) "Enter number of grid points"
-        read(*,*) npoints(i)
+        write(*,*) "Enter N" 
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) N 
         lb(i) = 0.0D0
         ub(i) = pi 
-        delx(i) = pi/npoints(i)
+        delx(i) = pi/N
+        npoints(i) = N - 1
 
       !azimuthal
       else if (coord(i) .eq. 4) then
         write(*,*) "type : azimuthal"
-        write(*,*) "Enter number of grid points"
-        read(*,*) npoints(i)
+        write(*,*) "Enter N" 
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) N 
         lb(i) = 0.0D0
         ub(i) = 2.0D0*pi
-        delx(i) = 2.0D0*pi/npoints(i) 
+        delx(i) = 2.0D0*pi/(2*N+1) 
+        npoints(i) = 2*N+1
 
       !box
       else if (coord(i) .eq. 5) then
         write(*,*) "type : box"
         write(*,*) "Enter lower bound" 
+        write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) lb(i)
         write(*,*) "Enter upper bound"
+        write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) ub(i)
-        write(*,*) "Enter number of gridpoints"
-        read(*,*) npoints(i) 
-        delx(i) = (ub(i) - lb(i))/npoints(i)
+        write(*,*) "Enter N" 
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) N
+        delx(i) = (ub(i) - lb(i))/N
+        npoints(i) = N - 1
 
       !bad
       else 

@@ -27,15 +27,15 @@ program dvr
 
   N = 1
   do i=0,ndim-1
-    N = (npoints(i)-1)*N
+    N = (npoints(i))*N
   end do
 
   call points_full(ndim,N,npoints,delx,lb,ub,coord) 
   stop
   if (pot .eq. -4) stop
-  call V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
-  call points_trim(ndim,Np,npoints,delx,id_vec,H) 
-  call T_calc(ndim,npoints,delx,Np,id_vec,H)
+  call V_calc(ndim,npoints,delx,N,pot,coord,Vc,Np,id_vec,H)
+  call points_trim(ndim,Np,npoints,delx,coord,id_vec,H) 
+  call T_calc(ndim,npoints,delx,coord,Np,id_vec,H)
 
   allocate(eval(0:Np-1))
   allocate(Psi(0:Np-1,0:Np-1))
@@ -52,7 +52,7 @@ program dvr
   end do
   write(*,*)
 
-  call wave_print(ndim,Np,npoints,delx,id_vec,neig,eval,Psi)
+  call wave_print(ndim,Np,npoints,delx,coord,id_vec,neig,eval,Psi)
 
   Vc = 0.0D0
   do i=0,Np-1

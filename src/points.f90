@@ -17,7 +17,7 @@ subroutine points_full(ndim,N,npoints,delx,lb,ub,coord)
   open(file='full_grid.txt',unit=100,status='replace')
   call key_make(ndim,npoints,key)
   do i=0,N-1
-    call key_eval(ndim,key,npoints,i,arry)
+    call key_eval(ndim,key,npoints,coord,i,arry)
     do j=0,ndim-1
       !xyz(j) = delx(j)*(arry(j)-npoints(j)/2) 
       xyz(j) = lb(j) + delx(j)*arry(j) 
@@ -27,11 +27,11 @@ subroutine points_full(ndim,N,npoints,delx,lb,ub,coord)
   close(unit=100)
 end subroutine points_full
 
-subroutine points_trim(ndim,Np,npoints,delx,id_vec,H)
+subroutine points_trim(ndim,Np,npoints,delx,coord,id_vec,H)
   implicit none
   real(kind=8), dimension(0:,0:), intent(in) :: H
   real(kind=8), dimension(0:), intent(in) :: delx
-  integer, dimension(0:), intent(in) :: npoints,id_vec
+  integer, dimension(0:), intent(in) :: npoints,id_vec,coord
   integer, intent(in) :: ndim,Np
   real(kind=8), dimension(0:ndim-1) :: xyz
   integer, dimension(0:ndim-1) :: arry,key
@@ -43,7 +43,7 @@ subroutine points_trim(ndim,Np,npoints,delx,id_vec,H)
   open(file='trim_V.txt',unit=101,status='replace')
   call key_make(ndim,npoints,key)
   do i=0,Np-1
-    call key_eval(ndim,key,npoints,id_vec(i),arry)
+    call key_eval(ndim,key,npoints,coord,id_vec(i),arry)
     do j=0,ndim-1
       xyz(j) = delx(j)*(arry(j)-npoints(j)/2)
     end do

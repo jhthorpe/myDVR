@@ -3,12 +3,12 @@ module wave
 
 contains
 
-subroutine wave_print(ndim,Np,npoints,delx,id_vec,neig,eval,Psi)
+subroutine wave_print(ndim,Np,npoints,delx,coord,id_vec,neig,eval,Psi)
   implicit none
   
   real(kind=8), dimension(0:,0:), intent(in) :: Psi
   real(kind=8), dimension(0:), intent(in) :: delx,eval
-  integer, dimension(0:), intent(in) :: npoints,id_vec
+  integer, dimension(0:), intent(in) :: npoints,id_vec,coord
   integer, intent(in) :: ndim,Np,neig
   real(kind=8), dimension(0:ndim-1) :: xyz
   integer, dimension(0:ndim-1) :: arry,key
@@ -22,7 +22,7 @@ subroutine wave_print(ndim,Np,npoints,delx,id_vec,neig,eval,Psi)
   call key_make(ndim,npoints,key)
 
   do j=0,Np-1
-    call key_eval(ndim,key,npoints,id_vec(j),arry)
+    call key_eval(ndim,key,npoints,coord,id_vec(j),arry)
     do i=0,neig-1
       do k=0,ndim-1
         xyz(k) = delx(k)*(arry(k)-npoints(k)/2)

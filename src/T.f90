@@ -4,11 +4,11 @@ module T
 
 contains
 
-subroutine T_calc(ndim,npoints,delx,Np,id_vec,H)
+subroutine T_calc(ndim,npoints,delx,coord,Np,id_vec,H)
   implicit none
   real(kind=8), dimension(0:,0:), intent(inout) :: H
   real(kind=8), dimension(0:), intent(in) :: delx
-  integer, dimension(0:), intent(in) :: npoints,id_vec
+  integer, dimension(0:), intent(in) :: npoints,id_vec,coord
   integer, intent(in) :: ndim,Np
   integer, dimension(0:ndim-1) :: arry_i,arry_j,key
   integer :: i,j
@@ -16,9 +16,9 @@ subroutine T_calc(ndim,npoints,delx,Np,id_vec,H)
   !loop scheme...
   call key_make(ndim,npoints,key)
   do j=0,Np-1
-    call key_eval(ndim,key,npoints,id_vec(j),arry_j)
+    call key_eval(ndim,key,npoints,coord,id_vec(j),arry_j)
     do i=0,j
-      call key_eval(ndim,key,npoints,id_vec(i),arry_i)
+      call key_eval(ndim,key,npoints,coord,id_vec(i),arry_i)
       H(i,j) = H(i,j) + T_eval(ndim,delx,arry_i,arry_j)
     end do  
   end do

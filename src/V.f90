@@ -4,12 +4,12 @@ module V
 
 contains
 
-subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
+subroutine V_calc(ndim,npoints,delx,N,pot,coord,Vc,Np,id_vec,H)
   implicit none
   real(kind=8), dimension(:,:), allocatable, intent(inout) :: H
   integer, dimension(:), allocatable, intent(inout) :: id_vec
   real(kind=8), dimension(0:), intent(in) :: delx
-  integer, dimension(0:), intent(in) :: npoints
+  integer, dimension(0:), intent(in) :: npoints,coord
   real(kind=8), intent(in) :: Vc
   integer, intent(inout) :: Np
   integer, intent(in) :: ndim,pot,N
@@ -64,7 +64,7 @@ subroutine V_calc(ndim,npoints,delx,N,pot,Vc,Np,id_vec,H)
   !loop scheme...
   call key_make(ndim,npoints,key)
   do i=0,N-1
-    call key_eval(ndim,key,npoints,i,arry_i)
+    call key_eval(ndim,key,npoints,coord,i,arry_i)
     if (pot .eq. 1) then 
       V = V_HO(ndim,npoints,phi,delx,arry_i)
     else if (pot .EQ. 2) then
