@@ -19,7 +19,7 @@ subroutine key_make(ndim,npoints,key)
   integer :: i
   key(0) = 1
   do i=1,ndim-1
-    key(i) = key(i-1)*npoints(i) 
+    key(i) = key(i-1)*npoints(i-1) 
   end do
 end subroutine key_make
 
