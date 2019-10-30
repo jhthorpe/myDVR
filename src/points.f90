@@ -17,6 +17,7 @@ subroutine points_full(ndim,N,npoints,delx,lb,ub,coord)
   call key_make(ndim,npoints,key)
   do i=0,N-1
     call key_eval(ndim,key,npoints,coord,i,arry)
+    write(*,*) "i=",i,"arry=",arry(0:ndim-1)
     do j=0,ndim-1
       !xyz(j) = delx(j)*(arry(j)-npoints(j)/2) 
       xyz(j) = lb(j) + delx(j)*arry(j) 

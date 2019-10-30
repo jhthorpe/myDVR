@@ -42,12 +42,6 @@ subroutine key_eval(ndim,key,npoints,coord,idx,arry)
   integer :: i
   do i=0,ndim-1
     arry(i) = MOD(idx/key(i),npoints(i)) 
-    !account for numbering in different coordinates
-    ! 1 -> -inf, inf, i=1,npoints
-    ! 2 ->    0, inf, i=1,npoints
-    ! 3 ->    0,   π, i=1,npoints 
-    ! 4 ->    0,  2π, i=0,npoints
-    ! 5 ->    a,   b, i=1,npoints
   end do
   arry = arry + 1
 end subroutine key_eval

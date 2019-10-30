@@ -95,6 +95,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         lb(i) = -1.0D0*delx(i)*(N)
         ub(i) = delx(i)*(N)
         npoints(i) = 2*N - 1
+write(*,*) npoints(0:ndim-1)        
 
       !radial
       else if (coord(i) .eq. 2) then
@@ -108,6 +109,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         lb(i) = 0.0d0
         ub(i) = delx(i)*N
         npoints(i) = N - 1
+write(*,*) npoints(0:ndim-1)        
 
       !polar
       else if (coord(i) .eq. 3) then
@@ -119,6 +121,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         ub(i) = pi 
         delx(i) = pi/N
         npoints(i) = N - 1
+write(*,*) npoints(0:ndim-1)        
 
       !azimuthal
       else if (coord(i) .eq. 4) then
@@ -130,6 +133,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         ub(i) = 2.0D0*pi
         delx(i) = 2.0D0*pi/(2*N+1) 
         npoints(i) = 2*N+1
+write(*,*) npoints(0:ndim-1)        
 
       !box
       else if (coord(i) .eq. 5) then
@@ -145,6 +149,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         read(*,*) N
         delx(i) = (ub(i) - lb(i))/N
         npoints(i) = N - 1
+write(*,*) npoints(0:ndim-1)        
 
       !bad
       else 
@@ -190,7 +195,7 @@ subroutine input_save(ndim,npoints,coord,lb,ub,delx)
   open(file='grid.dat',unit=100,status='replace')
   write(100,*) ndim
   do i=0,ndim-1
-    write(100,*) i,coord(i),lb(i),ub(i),delx(i)
+    write(100,*) i,coord(i),npoints(i),lb(i),ub(i),delx(i)
   end do
   close(unit=100)
 end subroutine input_save
