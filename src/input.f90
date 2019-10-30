@@ -95,7 +95,6 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         lb(i) = -1.0D0*delx(i)*(N)
         ub(i) = delx(i)*(N)
         npoints(i) = 2*N - 1
-write(*,*) npoints(0:ndim-1)        
 
       !radial
       else if (coord(i) .eq. 2) then
@@ -109,7 +108,6 @@ write(*,*) npoints(0:ndim-1)
         lb(i) = 0.0d0
         ub(i) = delx(i)*N
         npoints(i) = N - 1
-write(*,*) npoints(0:ndim-1)        
 
       !polar
       else if (coord(i) .eq. 3) then
@@ -121,7 +119,6 @@ write(*,*) npoints(0:ndim-1)
         ub(i) = pi 
         delx(i) = pi/N
         npoints(i) = N - 1
-write(*,*) npoints(0:ndim-1)        
 
       !azimuthal
       else if (coord(i) .eq. 4) then
@@ -133,7 +130,6 @@ write(*,*) npoints(0:ndim-1)
         ub(i) = 2.0D0*pi
         delx(i) = 2.0D0*pi/(2*N+1) 
         npoints(i) = 2*N+1
-write(*,*) npoints(0:ndim-1)        
 
       !box
       else if (coord(i) .eq. 5) then
@@ -149,7 +145,6 @@ write(*,*) npoints(0:ndim-1)
         read(*,*) N
         delx(i) = (ub(i) - lb(i))/N
         npoints(i) = N - 1
-write(*,*) npoints(0:ndim-1)        
 
       !bad
       else 
