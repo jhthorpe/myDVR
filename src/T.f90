@@ -43,6 +43,8 @@ subroutine T_calc(ndim,npoints,sys,delx,lb,ub,coord,Np,id_vec,H,error)
       !cartesian coord system
       if (sys .eq. 1) then
         T = T_CART(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
+      else if (sys .eq. 2) then
+        T = T_RAD(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
       else
         write(*,*) "Sorry, that system type is not supported"
         exit
@@ -80,7 +82,7 @@ real(kind=8) function T_CART(ndim,npoints,delx,lb,ub,&
   integer, dimension(0:), intent(in) :: arry_i,arry_j,npoints,coord
   integer, intent(in) :: ndim
   real(kind=8) :: val,pi,m
-  integer :: i,j,k
+  integer :: i,j,k,N
   pi = 3.14159265358979D0
   val = 0.0D0
   m = 1.0D0
@@ -101,15 +103,16 @@ real(kind=8) function T_CART(ndim,npoints,delx,lb,ub,&
 
       !boxed cartesian
       else if (coord(k) .eq. 5) then
+        N = npoints(k) + 1
         if (i .ne. j) then
-          val = val + 0.25D0*pi**2.0D0*(-1.0D0)**(i-j)&
+          val = val + 0.25D0*pi**2.0D0*((-1.0D0)**(i-j))&
                       /(m*(ub(k)-lb(k))**2.0D0)&
-                      *(1.0D0/sin(pi*(i-j)/(2*npoints(k)))**2.0D0 &
-                        - 1.0D0/sin(pi*(i+j)/(2*npoints(k)))**2.0D0)
+                      *(1.0D0/sin(pi*(i-j)/(2*N))**2.0D0 &
+                        - 1.0D0/sin(pi*(i+j)/(2*N))**2.0D0)
         else 
           val = val + 0.25D0*pi**2.0D0/(m*(ub(k)-lb(k))**2.0D0) &
-                      *((2.0D0*npoints(k)+1.0D0)/3.0D0 &
-                        - 1.0D0/sin(pi*i/npoints(k))**2.0D0) 
+                      *((2.0D0*N**2.0D0+1.0D0)/3.0D0 &
+                        - 1.0D0/sin(pi*i/N)**2.0D0) 
         end if
       end if
     end if   
@@ -118,6 +121,39 @@ real(kind=8) function T_CART(ndim,npoints,delx,lb,ub,&
 
 end function T_CART
 
+!---------------------------------------------------------------------
+! T_RAD
+!	- calculates the kinetic energy matrix in 1D radial coord
+!---------------------------------------------------------------------
+! ndim		: int, number of dimensions
+! npoints	: 1D int, number of points of each dimension
+! delx		: 1D real*8, delta x of each dimension
+! lb		: 1D real*8, lower bound of each dimension 
+! ub		: 1D real*8, upper bound of each dimension
+! coord		: 1D int, coordinate type of each dimension
+! arry_i	: 1D int, i index array
+! arry_j	: 1D int, j index array
+real(kind=8) function T_RAD(ndim,npoints,delx,lb,ub,&
+                             coord,arry_i,arry_j)
+  implicit none
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub
+  integer, dimension(0:), intent(in) :: arry_i,arry_j,npoints,coord
+  integer, intent(in) :: ndim
+  real(kind=8) :: val,pi,m
+  integer :: i,j,k
+  pi = 3.14159265358979D0
+  m = 1.0D0
+  i = arry_i(0)
+  j = arry_j(0)
+  if (i .ne. j) then
+    val = ((-1.0D0)**(i-j))/(m*delx(0)**2.0D0)&
+           *(1.0D0/(i-j)**2.0D0 - 1.0D0/(i+j)**2.0D0) 
+  else
+    val = ((-1.0D0)**(i-j))/(m*delx(0)**2.0D0)&
+           *(pi**2.0D0/6.0D0 - 0.25/i**2.0D0)
+  end if
+  T_RAD = val
+end function T_RAD
 !---------------------------------------------------------------------
 
 end module T
