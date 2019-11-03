@@ -26,7 +26,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   integer, intent(inout) :: ndim,pot
  
   real(kind=8) :: pi
-  integer :: i,N
+  integer :: i,j,N
   pi = 3.14159265358979D0
   
   !potential type -- probably remove this later once testing is done
@@ -43,12 +43,19 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
     stop
   end if
   write(*,*)
-  
-  write(*,*) "Enter number of dimensions"
-  write(*,'(1x,A1,1x)',advance='no') ">"
-  read(*,*) ndim
-  write(*,*)
 
+  !if it's a precalculated potential
+  if (pot .eq. 4) then
+    open(file='grid.dat',unit=100,status='old')
+    read(100,*) ndim  
+  !if not
+  else
+    write(*,*) "Enter number of dimensions"
+    write(*,'(1x,A1,1x)',advance='no') ">"
+    read(*,*) ndim
+    write(*,*)
+  end if
+  
   allocate(lb(0:ndim-1))
   allocate(ub(0:ndim-1))
   allocate(delx(0:ndim-1))
@@ -66,9 +73,8 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   end if
 
   !coordinate information
-  write(*,*) "Enter information for each coordinate"
   if (pot .ne. 4) then
-  !if (pot .eq. 4 .or. pot .eq. -4) then
+  write(*,*) "Enter information for each coordinate"
     write(*,*) "Coordinate Types:"
     write(*,*) "1 -> -inf, +inf   (cartesian)"
     write(*,*) "2 ->    0, +inf   (radial)"
@@ -155,13 +161,20 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
      
       write(*,*)
     end do
+  !precalcualted potential
+  else
+    write(*,*) "Reading information from grid.dat"
+    do i=0,ndim-1
+      read(100,*) j,coord(i),npoints(i),lb(i),ub(i),delx(i)
+    end do
+    close(unit=100)
   end if
 
   !print output
   write(*,*) "Grid information for each coordinate"
-  write(*,'(1x,A9,4x,A4,6x,A11,5x,A11,9x,A3)') "dimension","type","lower bound","upper bound","Δx"    
+  write(*,'(1x,A9,4x,A4,4x,A6,6x,A11,5x,A11,9x,A3)') "dimension","type","points","lower bound","upper bound","Δx"    
   do i=0,ndim-1
-    write(*,'(1x,6x,I3,6x,I2,5x,ES12.5,4x,ES12.5,4x,ES12.5)') i+1,coord(i),lb(i),ub(i),delx(i)
+    write(*,'(1x,6x,I3,6x,I2,7x,I3,5x,ES12.5,4x,ES12.5,4x,ES12.5)') i+1,coord(i),npoints(i),lb(i),ub(i),delx(i)
   end do
   write(*,*) 
   call input_save(ndim,npoints,coord,lb,ub,delx)

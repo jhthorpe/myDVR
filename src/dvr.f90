@@ -14,7 +14,7 @@ program dvr
   use T
   use points
   use linal
-  use wave
+  use fprint
   use crd
 
   implicit none
@@ -67,7 +67,8 @@ program dvr
     write(*,*) i,eval(i)
   end do
   write(*,*)
-  call wave_print(ndim,Np,npoints,delx,coord,id_vec,neig,eval,Psi)
+  call fprint_espc(ndim,lb,ub,neig,eval)
+  call fprint_wave(ndim,Np,npoints,delx,lb,coord,id_vec,neig,eval,Psi)
   Vc = 0.0D0
   do i=0,Np-1
     Vc = Vc + Psi(i,0)**2.0D0 

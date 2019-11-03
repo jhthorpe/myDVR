@@ -45,6 +45,8 @@ subroutine T_calc(ndim,npoints,sys,delx,lb,ub,coord,Np,id_vec,H,error)
         T = T_CART(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
       else if (sys .eq. 2) then
         T = T_RAD(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
+      else if (sys .eq. 3) then
+        T = T_POLR(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
       else
         write(*,*) "Sorry, that system type is not supported"
         exit
@@ -133,6 +135,7 @@ end function T_CART
 ! coord		: 1D int, coordinate type of each dimension
 ! arry_i	: 1D int, i index array
 ! arry_j	: 1D int, j index array
+
 real(kind=8) function T_RAD(ndim,npoints,delx,lb,ub,&
                              coord,arry_i,arry_j)
   implicit none
@@ -154,6 +157,45 @@ real(kind=8) function T_RAD(ndim,npoints,delx,lb,ub,&
   end if
   T_RAD = val
 end function T_RAD
+
 !---------------------------------------------------------------------
+! T_POLR
+!       - calculates the kinetic energy matrix in 1D polar coord
+!---------------------------------------------------------------------
+! ndim          : int, number of dimensions
+! npoints       : 1D int, number of points of each dimension
+! delx          : 1D real*8, delta x of each dimension
+! lb            : 1D real*8, lower bound of each dimension 
+! ub            : 1D real*8, upper bound of each dimension
+! coord         : 1D int, coordinate type of each dimension
+! arry_i        : 1D int, i index array
+! arry_j        : 1D int, j index array
+
+real(kind=8) function T_POLR(ndim,npoints,delx,lb,ub,&
+                             coord,arry_i,arry_j)
+  implicit none
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub
+  integer, dimension(0:), intent(in) :: arry_i,arry_j,npoints,coord
+  integer, intent(in) :: ndim
+  real(kind=8) :: val,pi,m
+  integer :: i,j,k,N
+  pi = 3.14159265358979D0
+  m = 1.0D0
+  i = arry_i(0)
+  j = arry_j(0)
+  N = npoints(k) + 1
+  if (i .ne. j) then
+    val = 0.25D0*((-1.0D0)**(i-j))/(m)&
+          *(1.0D0/sin(pi*(i-j)/(2*N))**2.0D0 &
+          - 1.0D0/sin(pi*(i+j)/(2*N))**2.0D0)
+  else
+    val = 0.25D0/(m) &
+          *((2.0D0*N**2.0D0+1.0D0)/3.0D0 &
+          - 1.0D0/sin(pi*i/N)**2.0D0)
+  end if
+  T_POLR = val
+end function T_POLR
+!---------------------------------------------------------------------
+
 
 end module T
