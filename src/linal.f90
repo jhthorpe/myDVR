@@ -141,8 +141,10 @@ SUBROUTINE linal_dsyevx(N,IU,LWORK,A,W,Z,error)
   !  IF (Z(i,j) .LT. 0.0D0) Z(0:N-1,j) = -1.0D0*Z(0:N-1,j)
   !END DO
 
-  OPEN(FILE='eigs.dat',UNIT=100,STATUS='REPLACE')
+  open(file='eigs.dat',unit=99,status='replace')
+  OPEN(FILE='evec.dat',UNIT=100,STATUS='REPLACE')
   DO i=0,IU-1
+    write(99,*) i,W(i)
     WRITE(100,*) "Eigenvalue #",i,W(i)
     DO j=0,N-1
       WRITE(100,*) j,Z(j,i)
@@ -150,6 +152,7 @@ SUBROUTINE linal_dsyevx(N,IU,LWORK,A,W,Z,error)
     WRITE(100,*) "------------------------------------------------------"
   END DO
   CLOSE(UNIT=100)
+  close(unit=99)
 
 END SUBROUTINE linal_dsyevx
 
