@@ -13,14 +13,15 @@ contains
 ! lb		: 1D real*8, lower bound for each dim
 ! ub		: 1D real*8, upper bound for each dim
 ! delx		: 1D real*8, delta x for each dim
+! m		: 1D real*8, mass of coordinate
 ! pot		: int, potential type for the system
 ! coord		: 1D int, coordinate types for each dim
 ! npoints	: 1D int, number of points for each dim
 ! Vc		: real*8, potential energy cutoff for trimming
 
-subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
+subroutine input_get(ndim,lb,ub,delx,m,pot,coord,npoints,Vc)
   implicit none
-  real(kind=8), dimension(:), allocatable, intent(inout) :: lb,ub,delx
+  real(kind=8), dimension(:), allocatable, intent(inout) :: lb,ub,delx,m
   integer, dimension(:), allocatable, intent(inout) :: npoints,coord
   real(kind=8), intent(inout) :: Vc
   integer, intent(inout) :: ndim,pot
@@ -59,6 +60,7 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   allocate(lb(0:ndim-1))
   allocate(ub(0:ndim-1))
   allocate(delx(0:ndim-1))
+  allocate(m(0:ndim-1))
   allocate(npoints(0:ndim-1))
   allocate(coord(0:ndim-1))
 
@@ -99,6 +101,9 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         write(*,*) "Enter maximum N"
         write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) N 
+        write(*,*) "Enter mass"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) m(i)
         lb(i) = -1.0D0*delx(i)*(N)
         ub(i) = delx(i)*(N)
         npoints(i) = 2*N - 1
@@ -112,6 +117,9 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         write(*,*) "Enter maximum N" 
         write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) N 
+        write(*,*) "Enter mass"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) m(i)
         lb(i) = 0.0d0
         ub(i) = delx(i)*N
         npoints(i) = N - 1
@@ -122,6 +130,9 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         write(*,*) "Enter N" 
         write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) N 
+        write(*,*) "Enter mass"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) m(i)
         lb(i) = 0.0D0
         ub(i) = pi 
         delx(i) = pi/N
@@ -133,6 +144,9 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         write(*,*) "Enter N" 
         write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) N 
+        write(*,*) "Enter mass"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) m(i)
         lb(i) = 0.0D0
         ub(i) = 2.0D0*pi
         delx(i) = 2.0D0*pi/(2*N+1) 
@@ -150,6 +164,9 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
         write(*,*) "Enter N" 
         write(*,'(1x,A1,1x)',advance='no') ">"
         read(*,*) N
+        write(*,*) "Enter mass"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) m(i)
         delx(i) = (ub(i) - lb(i))/N
         npoints(i) = N - 1
 
@@ -165,19 +182,19 @@ subroutine input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
   else
     write(*,*) "Reading information from grid.dat"
     do i=0,ndim-1
-      read(100,*) j,coord(i),npoints(i),lb(i),ub(i),delx(i)
+      read(100,*) j,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i)
     end do
     close(unit=100)
   end if
 
   !print output
   write(*,*) "Grid information for each coordinate"
-  write(*,'(1x,A9,4x,A4,4x,A6,6x,A11,5x,A11,9x,A3)') "dimension","type","points","lower bound","upper bound","Δx"    
+  write(*,'(1x,A9,4x,A4,4x,A6,6x,A11,5x,A11,9x,A3,14x,A4)') "dimension","type","points","lower bound","upper bound","Δx","mass"    
   do i=0,ndim-1
-    write(*,'(1x,6x,I3,6x,I2,7x,I3,5x,ES12.5,4x,ES12.5,4x,ES12.5)') i+1,coord(i),npoints(i),lb(i),ub(i),delx(i)
+    write(*,'(1x,6x,I3,6x,I2,7x,I3,5x,ES12.5,4x,ES12.5,4x,ES12.5,4x,ES12.5)') i+1,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i)
   end do
   write(*,*) 
-  call input_save(ndim,npoints,coord,lb,ub,delx)
+  call input_save(ndim,npoints,coord,lb,ub,delx,m)
   write(*,*) "Grid data saved to grid.dat"
   write(*,*) 
 
@@ -194,17 +211,18 @@ end subroutine
 ! lb		: 1D real*8, lower bounds of each dimension
 ! ub		: 1D real*8, upper bounds of each dimension  
 ! delx		: 1D real*8, Δx of each dimension
+! m		: 1D real*8, mass of each dimension
 
-subroutine input_save(ndim,npoints,coord,lb,ub,delx)
+subroutine input_save(ndim,npoints,coord,lb,ub,delx,m)
   implicit none
-  real(kind=8), dimension(0:), intent(in) :: lb,ub,delx
+  real(kind=8), dimension(0:), intent(in) :: lb,ub,delx,m
   integer, dimension(0:), intent(in) :: npoints,coord
   integer, intent(in) :: ndim
   integer :: i
   open(file='grid.dat',unit=100,status='replace')
   write(100,*) ndim
   do i=0,ndim-1
-    write(100,*) i,coord(i),npoints(i),lb(i),ub(i),delx(i)
+    write(100,*) i,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i)
   end do
   close(unit=100)
 end subroutine input_save

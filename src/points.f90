@@ -68,7 +68,7 @@ subroutine points_trim(ndim,Np,npoints,delx,lb,coord,id_vec,H)
       xyz(j) = lb(j) + delx(j)*arry(j)
     end do
     write(100,*) i,xyz(0:ndim-1)
-    write(101,*) i,H(i,i)
+    write(101,*) i,xyz(0:ndim-1), H(i,i)
   end do
   close(unit=100)
   close(unit=101)

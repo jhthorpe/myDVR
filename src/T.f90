@@ -17,14 +17,15 @@ contains
 ! delx		: 1D real*8, delta x for each dim
 ! lb		: 1D real*8, lower bound for each dim
 ! ub		: 1D real*8, upper bound for each dim
+! m		: 1D real*8, mass for each dim
 ! Np		: int, size of trimmed Hamiltonian
 ! id_vec	: 1D int, id vector of trimmed Hamiltonian
 ! H		: 2D real*8, trimmed Hamiltonian 
 
-subroutine T_calc(ndim,npoints,sys,delx,lb,ub,coord,Np,id_vec,H,error)
+subroutine T_calc(ndim,npoints,sys,delx,lb,ub,m,coord,Np,id_vec,H,error)
   implicit none
   real(kind=8), dimension(0:,0:), intent(inout) :: H
-  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub,m
   integer, dimension(0:), intent(in) :: npoints,id_vec,coord
   integer, intent(inout) :: error
   integer, intent(in) :: ndim,Np,sys
@@ -42,11 +43,11 @@ subroutine T_calc(ndim,npoints,sys,delx,lb,ub,coord,Np,id_vec,H,error)
       call key_eval(ndim,key,npoints,coord,id_vec(i),arry_i)
       !cartesian coord system
       if (sys .eq. 1) then
-        T = T_CART(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
+        T = T_CART(ndim,npoints,delx,lb,ub,m,coord,arry_i,arry_j)
       else if (sys .eq. 2) then
-        T = T_RAD(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
+        T = T_RAD(ndim,npoints,delx,lb,ub,m,coord,arry_i,arry_j)
       else if (sys .eq. 3) then
-        T = T_POLR(ndim,npoints,delx,lb,ub,coord,arry_i,arry_j)
+        T = T_POLR(ndim,npoints,delx,lb,ub,m,coord,arry_i,arry_j)
       else
         write(*,*) "Sorry, that system type is not supported"
         exit
@@ -73,21 +74,21 @@ end subroutine T_calc
 ! delx		: 1D real*8, delta x of each dimension
 ! lb		: 1D real*8, lower bound of each dimension 
 ! ub		: 1D real*8, upper bound of each dimension
+! m		: 1D real*8, mass for each dimension
 ! coord		: 1D int, coordinate type of each dimension
 ! arry_i	: 1D int, i index array
 ! arry_j	: 1D int, j index array
 
-real(kind=8) function T_CART(ndim,npoints,delx,lb,ub,&
+real(kind=8) function T_CART(ndim,npoints,delx,lb,ub,m,&
                              coord,arry_i,arry_j)
   implicit none
-  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub,m
   integer, dimension(0:), intent(in) :: arry_i,arry_j,npoints,coord
   integer, intent(in) :: ndim
-  real(kind=8) :: val,pi,m
+  real(kind=8) :: val,pi
   integer :: i,j,k,N
   pi = 3.14159265358979D0
   val = 0.0D0
-  m = 1.0D0
 
   do k=0,ndim-1
     if (all(arry_i(0:k-1) .eq. arry_j(0:k-1)) .and. &
@@ -98,9 +99,9 @@ real(kind=8) function T_CART(ndim,npoints,delx,lb,ub,&
       !infinite cartesian
       if (coord(k) .eq. 1) then
         if (i .ne. j) then
-          val = val + ((-1.0D0)**(i - j))/(m*(delx(k)*(i - j))**2.0D0)
+          val = val + ((-1.0D0)**(i - j))/(m(k)*(delx(k)*(i - j))**2.0D0)
         else
-          val = val + (pi**2.0D0)/(6.0D0*m*delx(k)**2.0D0)
+          val = val + (pi**2.0D0)/(6.0D0*m(k)*delx(k)**2.0D0)
         end if
 
       !boxed cartesian
@@ -108,11 +109,11 @@ real(kind=8) function T_CART(ndim,npoints,delx,lb,ub,&
         N = npoints(k) + 1
         if (i .ne. j) then
           val = val + 0.25D0*pi**2.0D0*((-1.0D0)**(i-j))&
-                      /(m*(ub(k)-lb(k))**2.0D0)&
+                      /(m(k)*(ub(k)-lb(k))**2.0D0)&
                       *(1.0D0/sin(pi*(i-j)/(2*N))**2.0D0 &
                         - 1.0D0/sin(pi*(i+j)/(2*N))**2.0D0)
         else 
-          val = val + 0.25D0*pi**2.0D0/(m*(ub(k)-lb(k))**2.0D0) &
+          val = val + 0.25D0*pi**2.0D0/(m(k)*(ub(k)-lb(k))**2.0D0) &
                       *((2.0D0*N**2.0D0+1.0D0)/3.0D0 &
                         - 1.0D0/sin(pi*i/N)**2.0D0) 
         end if
@@ -132,27 +133,27 @@ end function T_CART
 ! delx		: 1D real*8, delta x of each dimension
 ! lb		: 1D real*8, lower bound of each dimension 
 ! ub		: 1D real*8, upper bound of each dimension
+! m		: 1D real*8, mass of each dimension
 ! coord		: 1D int, coordinate type of each dimension
 ! arry_i	: 1D int, i index array
 ! arry_j	: 1D int, j index array
 
-real(kind=8) function T_RAD(ndim,npoints,delx,lb,ub,&
+real(kind=8) function T_RAD(ndim,npoints,delx,lb,ub,m,&
                              coord,arry_i,arry_j)
   implicit none
-  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub,m
   integer, dimension(0:), intent(in) :: arry_i,arry_j,npoints,coord
   integer, intent(in) :: ndim
-  real(kind=8) :: val,pi,m
+  real(kind=8) :: val,pi
   integer :: i,j,k
   pi = 3.14159265358979D0
-  m = 1.0D0
   i = arry_i(0)
   j = arry_j(0)
   if (i .ne. j) then
-    val = ((-1.0D0)**(i-j))/(m*delx(0)**2.0D0)&
+    val = ((-1.0D0)**(i-j))/(m(0)*delx(0)**2.0D0)&
            *(1.0D0/(i-j)**2.0D0 - 1.0D0/(i+j)**2.0D0) 
   else
-    val = ((-1.0D0)**(i-j))/(m*delx(0)**2.0D0)&
+    val = ((-1.0D0)**(i-j))/(m(0)*delx(0)**2.0D0)&
            *(pi**2.0D0/6.0D0 - 0.25/i**2.0D0)
   end if
   T_RAD = val
@@ -167,29 +168,29 @@ end function T_RAD
 ! delx          : 1D real*8, delta x of each dimension
 ! lb            : 1D real*8, lower bound of each dimension 
 ! ub            : 1D real*8, upper bound of each dimension
+! m		: 1D real*8, mass for each dimension
 ! coord         : 1D int, coordinate type of each dimension
 ! arry_i        : 1D int, i index array
 ! arry_j        : 1D int, j index array
 
-real(kind=8) function T_POLR(ndim,npoints,delx,lb,ub,&
+real(kind=8) function T_POLR(ndim,npoints,delx,lb,ub,m,&
                              coord,arry_i,arry_j)
   implicit none
-  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub,m
   integer, dimension(0:), intent(in) :: arry_i,arry_j,npoints,coord
   integer, intent(in) :: ndim
-  real(kind=8) :: val,pi,m
+  real(kind=8) :: val,pi
   integer :: i,j,k,N
   pi = 3.14159265358979D0
-  m = 1.0D0
   i = arry_i(0)
   j = arry_j(0)
   N = npoints(k) + 1
   if (i .ne. j) then
-    val = 0.25D0*((-1.0D0)**(i-j))/(m)&
+    val = 0.25D0*((-1.0D0)**(i-j))/(m(0))&
           *(1.0D0/sin(pi*(i-j)/(2*N))**2.0D0 &
           - 1.0D0/sin(pi*(i+j)/(2*N))**2.0D0)
   else
-    val = 0.25D0/(m) &
+    val = 0.25D0/(m(0)) &
           *((2.0D0*N**2.0D0+1.0D0)/3.0D0 &
           - 1.0D0/sin(pi*i/N)**2.0D0)
   end if

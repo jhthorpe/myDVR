@@ -4,6 +4,7 @@
 ! delx		: 1D real*8, gridpoint size
 ! ub		: 1D real*8, upper bounds
 ! lb		: 1D real*8, lower bounds
+! m		: 1D real*8, mass 
 ! N		: int, number of untrimmed points
 ! Np		: int, number of trimmed points
 ! id_vec	: 1D int, list of original gridpoint numbers
@@ -19,13 +20,13 @@ program dvr
 
   implicit none
   real(kind=8), dimension(:,:), allocatable :: H,Psi  
-  real(kind=8), dimension(:), allocatable :: lb,ub,delx,eval
+  real(kind=8), dimension(:), allocatable :: lb,ub,delx,eval,m
   integer, dimension(:), allocatable :: npoints,id_vec,coord
   real(kind=8) :: Vc
   integer :: ndim,pot,N,Np,i,neig,lwork,sys,error
 
   !Get input and coordinate system
-  call input_get(ndim,lb,ub,delx,pot,coord,npoints,Vc)
+  call input_get(ndim,lb,ub,delx,m,pot,coord,npoints,Vc)
   call crd_get(ndim,coord,sys,error)
   if (error .ne. 0) then
     call dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi)
@@ -45,7 +46,7 @@ program dvr
   if (pot .eq. -4) stop
   call V_calc(ndim,npoints,delx,lb,ub,N,pot,coord,Vc,Np,id_vec,H)
   call points_trim(ndim,Np,npoints,delx,lb,coord,id_vec,H) 
-  call T_calc(ndim,npoints,sys,delx,lb,ub,coord,Np,id_vec,H,error)
+  call T_calc(ndim,npoints,sys,delx,lb,ub,m,coord,Np,id_vec,H,error)
   if (error .ne. 0) then
     call dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi)
     stop 1

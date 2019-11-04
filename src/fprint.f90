@@ -30,6 +30,7 @@ subroutine fprint_espc(ndim,lb,ub,neig,eval)
     do j=0,ndim-1
       write(foff+j,*) i,lb(j),eval(i)
       write(foff+j,*) i,ub(j),eval(i)
+      write(foff+j,*)
     end do
   end do
 
