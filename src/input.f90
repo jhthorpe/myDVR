@@ -14,14 +14,15 @@ contains
 ! ub		: 1D real*8, upper bound for each dim
 ! delx		: 1D real*8, delta x for each dim
 ! m		: 1D real*8, mass of coordinate
+! om		: 1D real*8, omegas of coordinate
 ! pot		: int, potential type for the system
 ! coord		: 1D int, coordinate types for each dim
 ! npoints	: 1D int, number of points for each dim
 ! Vc		: real*8, potential energy cutoff for trimming
 
-subroutine input_get(ndim,lb,ub,delx,m,pot,coord,npoints,Vc)
+subroutine input_get(ndim,lb,ub,delx,m,om,pot,coord,npoints,Vc)
   implicit none
-  real(kind=8), dimension(:), allocatable, intent(inout) :: lb,ub,delx,m
+  real(kind=8), dimension(:), allocatable, intent(inout) :: lb,ub,delx,m,om
   integer, dimension(:), allocatable, intent(inout) :: npoints,coord
   real(kind=8), intent(inout) :: Vc
   integer, intent(inout) :: ndim,pot
@@ -63,6 +64,9 @@ subroutine input_get(ndim,lb,ub,delx,m,pot,coord,npoints,Vc)
   allocate(m(0:ndim-1))
   allocate(npoints(0:ndim-1))
   allocate(coord(0:ndim-1))
+  allocate(om(0:ndim-1))
+  m = 1.0D0
+  om = 1.0D0
 
   !potential energy cutoff
   if (pot .eq. 1 .or. pot .eq. 4) then
@@ -83,6 +87,7 @@ subroutine input_get(ndim,lb,ub,delx,m,pot,coord,npoints,Vc)
     write(*,*) "3 ->    0,    π   (polar)"
     write(*,*) "4 ->    0,   2π   (azimuthal, periodic)"
     write(*,*) "5 ->    a,    b   (box)"
+    write(*,*) "6 ->  -inf, +inf  (dimensionless normal coordinate)"
     write(*,*) 
 
     do i=0,ndim-1
@@ -170,6 +175,21 @@ subroutine input_get(ndim,lb,ub,delx,m,pot,coord,npoints,Vc)
         delx(i) = (ub(i) - lb(i))/N
         npoints(i) = N - 1
 
+      else if (coord(i) .eq. 6) then
+        write(*,*) "type : dimensionless normal coordinate"
+        write(*,*) "Enter gridpoint spacing"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) delx(i)
+        write(*,*) "Enter maximum N"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) N 
+        write(*,*) "Enter omega (cm-1)"
+        write(*,'(1x,A1,1x)',advance='no') ">"
+        read(*,*) om(i)
+        lb(i) = -1.0D0*delx(i)*(N)
+        ub(i) = delx(i)*(N)
+        npoints(i) = 2*N - 1
+
       !bad
       else 
         write(*,*) "Sorry, that coordinate type is not supported"
@@ -182,19 +202,19 @@ subroutine input_get(ndim,lb,ub,delx,m,pot,coord,npoints,Vc)
   else
     write(*,*) "Reading information from grid.dat"
     do i=0,ndim-1
-      read(100,*) j,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i)
+      read(100,*) j,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i),om(i)
     end do
     close(unit=100)
   end if
 
   !print output
   write(*,*) "Grid information for each coordinate"
-  write(*,'(1x,A9,4x,A4,4x,A6,6x,A11,5x,A11,9x,A3,14x,A4)') "dimension","type","points","lower bound","upper bound","Δx","mass"    
+  write(*,'(1x,A9,4x,A4,4x,A6,6x,A11,5x,A11,9x,A3,14x,A4,14x,A4)') "dimension","type","points","lower bound","upper bound","Δx","mass","ω"    
   do i=0,ndim-1
-    write(*,'(1x,6x,I3,6x,I2,7x,I3,5x,ES12.5,4x,ES12.5,4x,ES12.5,4x,ES12.5)') i+1,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i)
+    write(*,'(1x,6x,I3,6x,I2,7x,I3,5x,ES12.5,4x,ES12.5,4x,ES12.5,4x,ES12.5,4x,ES12.5)') i+1,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i),om(i)
   end do
   write(*,*) 
-  call input_save(ndim,npoints,coord,lb,ub,delx,m)
+  call input_save(ndim,npoints,coord,lb,ub,delx,m,om)
   write(*,*) "Grid data saved to grid.dat"
   write(*,*) 
 
@@ -212,17 +232,18 @@ end subroutine
 ! ub		: 1D real*8, upper bounds of each dimension  
 ! delx		: 1D real*8, Δx of each dimension
 ! m		: 1D real*8, mass of each dimension
+! om		: 1D real*8, omega of each dimension
 
-subroutine input_save(ndim,npoints,coord,lb,ub,delx,m)
+subroutine input_save(ndim,npoints,coord,lb,ub,delx,m,om)
   implicit none
-  real(kind=8), dimension(0:), intent(in) :: lb,ub,delx,m
+  real(kind=8), dimension(0:), intent(in) :: lb,ub,delx,m,om
   integer, dimension(0:), intent(in) :: npoints,coord
   integer, intent(in) :: ndim
   integer :: i
   open(file='grid.dat',unit=100,status='replace')
   write(100,*) ndim
   do i=0,ndim-1
-    write(100,*) i,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i)
+    write(100,*) i,coord(i),npoints(i),lb(i),ub(i),delx(i),m(i),om(i)
   end do
   close(unit=100)
 end subroutine input_save

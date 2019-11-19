@@ -22,7 +22,7 @@ subroutine crd_get(ndim,coord,sys,error)
   integer, dimension(0:), intent(in) :: coord
   integer, intent(inout) :: sys,error
   integer, intent(in) :: ndim
-  logical :: cart,rctl
+  logical :: cart,rctl,dnc
   integer :: i
   error = 0
 
@@ -33,6 +33,7 @@ subroutine crd_get(ndim,coord,sys,error)
   ! 3 -> polar 1D
   ! 4 -> azimuthal 1D
   ! 5 -> rectilinear
+  ! 6 -> dimensionless normal coordinates (DNC)
 
   !one dimensional coordiantes
   if (ndim .eq. 1) then
@@ -44,6 +45,8 @@ subroutine crd_get(ndim,coord,sys,error)
       sys = 3
     else if (coord(0) .eq. 4) then
       sys = 4
+    else if (coord(0) .eq. 6) then
+      sys = 6
     else
       sys = 0
     end if
@@ -52,6 +55,7 @@ subroutine crd_get(ndim,coord,sys,error)
   else if (ndim .gt. 1) then
     cart = .true.
     rctl = .true.
+    dnc = .true.
     do i=0,ndim-1
       if (.not. cart .and. .not. rctl) then
         exit
@@ -60,12 +64,16 @@ subroutine crd_get(ndim,coord,sys,error)
       else if (coord(i) .ne. 2 .and. coord(i) .ne. 3 &
                .and. coord(i) .ne. 4) then
         rctl = .false.
+      else if (coord(i) .ne. 6) then
+        dnc = .false.
       end if
     end do
     if (cart) then
       sys = 1
     else if (rctl) then
       sys = 5
+    else if (dnc) then
+      sys = 6
     else
       sys = 0
     end if
@@ -86,6 +94,8 @@ subroutine crd_get(ndim,coord,sys,error)
     write(*,*) "Coorindate system is 1D azimuthal"
   else if (sys .eq. 5) then
     write(*,*) "Coordinate system is rectilinear"
+  else if (sys .eq. 6) then
+    write(*,*) "Coordinate system is dimensionless normal coordinates"
   end if
   write(*,*)
 

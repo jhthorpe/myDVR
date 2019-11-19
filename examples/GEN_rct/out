@@ -1,0 +1,76 @@
+Parameters
+ enter ql
+-2.0
+ enter qr
+2.0
+ enter kl
+1.0
+ enter kr
+1.0
+ enter Vr
+0.5
+ enter g
+-0.25
+ enter ky
+1.0
+ enter number of lines
+1281
+
+
+Enter potential type
+ Options:
+ 1 -> Harmonic Oscillator
+ 2 -> Particle in a Box
+ 3 -> Particle in a Stadium
+ 4 -> General potential (-4 to generate)
+4
+
+ Enter number of dimensions
+2
+
+ Enter V cutoff...
+10
+
+ Enter bounding box...
+ dimension            1
+5
+ dimension            2
+5
+
+ Enter number of gridpoints...
+ dimension            1
+30
+ dimension            2
+10
+
+ Using the following gridsize
+ dimension           1  0.16666666666666666     
+ dimension           2  0.50000000000000000     
+ Number of gridpoints per dimension
+          61
+          21
+
+
+ Writing gridpoints to full_grid.txt
+ Calculating potential elements
+ Reading potential from V.in
+ Trimmed Hamiltonian is dimension         997
+
+ Writing gridpoints to trim_grid.txt
+ Writing potentials to trim_V.txt
+ Calculating kinetic elements
+ Enter number of eigenvalues
+6
+ Eigenvalues
+         QN      λ
+           0  0.98869410301658833     
+           1   1.4807391795953717     
+           2   1.9599227110430668     
+           3   1.9886947856206270     
+           4   2.4637681026515241     
+           5   2.4807403817950626     
+
+ Wavefunction plots saved as 'wave_X.dat'
+rm: wave_[0-9]*.dat: No such file or directory
+ Psi^2 of 0 is   1.0000000000000000     
+

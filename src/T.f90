@@ -18,14 +18,15 @@ contains
 ! lb		: 1D real*8, lower bound for each dim
 ! ub		: 1D real*8, upper bound for each dim
 ! m		: 1D real*8, mass for each dim
+! om		: 1D real*8, omega for each dim
 ! Np		: int, size of trimmed Hamiltonian
 ! id_vec	: 1D int, id vector of trimmed Hamiltonian
 ! H		: 2D real*8, trimmed Hamiltonian 
 
-subroutine T_calc(ndim,npoints,sys,delx,lb,ub,m,coord,Np,id_vec,H,error)
+subroutine T_calc(ndim,npoints,sys,delx,lb,ub,m,om,coord,Np,id_vec,H,error)
   implicit none
   real(kind=8), dimension(0:,0:), intent(inout) :: H
-  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub,m
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub,m,om
   integer, dimension(0:), intent(in) :: npoints,id_vec,coord
   integer, intent(inout) :: error
   integer, intent(in) :: ndim,Np,sys
@@ -48,6 +49,8 @@ subroutine T_calc(ndim,npoints,sys,delx,lb,ub,m,coord,Np,id_vec,H,error)
         T = T_RAD(ndim,npoints,delx,lb,ub,m,coord,arry_i,arry_j)
       else if (sys .eq. 3) then
         T = T_POLR(ndim,npoints,delx,lb,ub,m,coord,arry_i,arry_j)
+      else if (sys .eq. 6) then
+        T = T_DNC(ndim,npoints,delx,lb,ub,om,coord,arry_i,arry_j)
       else
         write(*,*) "Sorry, that system type is not supported"
         exit
@@ -196,7 +199,49 @@ real(kind=8) function T_POLR(ndim,npoints,delx,lb,ub,m,&
   end if
   T_POLR = val
 end function T_POLR
+
 !---------------------------------------------------------------------
+! T_DNC
+!	- evalutes the kinetic matrix element in dimensionless
+!	  normal coordinates
+!---------------------------------------------------------------------
+! ndim		: int, number of dimensions
+! npoints	: 1D int, number of points of each dimension
+! delx		: 1D real*8, delta x of each dimension
+! lb		: 1D real*8, lower bound of each dimension 
+! ub		: 1D real*8, upper bound of each dimension
+! om		: 1D real*8, omega for each dimension
+! coord		: 1D int, coordinate type of each dimension
+! arry_i	: 1D int, i index array
+! arry_j	: 1D int, j index array
 
+real(kind=8) function T_DNC(ndim,npoints,delx,lb,ub,om,&
+                             coord,arry_i,arry_j)
+  implicit none
+  real(kind=8), dimension(0:), intent(in) :: delx,lb,ub,om
+  integer, dimension(0:), intent(in) :: arry_i,arry_j,npoints,coord
+  integer, intent(in) :: ndim
+  real(kind=8) :: val,pi
+  integer :: i,j,k,N
+  pi = 3.14159265358979D0
+  val = 0.0D0
 
+  do k=0,ndim-1
+    if (all(arry_i(0:k-1) .eq. arry_j(0:k-1)) .and. &
+        all(arry_i(k+1:ndim-1) .eq. arry_j(k+1:ndim-1)) ) then
+      i = arry_i(k)
+      j = arry_j(k)
+
+      if (i .ne. j) then
+        val = val + om(k)*((-1.0D0)**(i - j))/((delx(k)*(i - j))**2.0D0)
+      else
+        val = val + om(k)*(pi**2.0D0)/(6.0D0*delx(k)**2.0D0)
+      end if
+    end if   
+  end do 
+  T_DNC = val
+
+end function T_DNC
+
+!---------------------------------------------------------------------
 end module T

@@ -1,0 +1,38 @@
+ Enter potential type
+ Options:
+ 1 -> Harmonic Oscillator
+ 2 -> Particle in a Box
+ 3 -> Particle in a Stadium
+ 4 -> General potential (-4 to generate)
+ > 
+ Enter number of dimensions
+ > 
+ Enter information for each coordinate
+ Coordinate Types:
+ 1 -> -inf, +inf   (cartesian)
+ 2 ->    0, +inf   (radial)
+ 3 ->    0,    π   (polar)
+ 4 ->    0,   2π   (azimuthal, periodic)
+ 5 ->    a,    b   (box)
+
+ dimension   1
+ ------------------------
+ Enter coordinate type
+ >  type : cartesian
+ Enter gridpoint spacing
+ >  Enter maximum N
+ >  Enter mass
+ > 
+ Grid information for each coordinate
+ dimension    type    points      lower bound     upper bound         Δx              mass
+         1       1       199     -5.00000E+00     5.00000E+00     5.00000E-02     1.00000E+00
+
+ Grid data saved to grid.dat
+
+ Determining coordinate system
+ Coordinate system is Cartesian
+
+ Full Hamiltonian is dimension         199
+
+ Writing gridpoints to full_grid.txt
+
