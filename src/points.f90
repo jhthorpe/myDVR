@@ -46,6 +46,7 @@ end subroutine points_full
 ! delx		: 1D real*8, delta x of each dim
 ! lb		: 1D real*8, lower bound for each dim
 ! coord		: 1D int, coordinate type for each dim
+! id_vec	: 1D int, id vector of trimmed Hamiltonian 
 
 subroutine points_trim(ndim,Np,npoints,delx,lb,coord,id_vec,H)
   implicit none

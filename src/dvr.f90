@@ -8,11 +8,12 @@
 ! delx		: 1D real*8, gridpoint size
 ! ub		: 1D real*8, upper bounds
 ! lb		: 1D real*8, lower bounds
-! m		: 1D real*8, mass 
 ! N		: int, number of untrimmed points
 ! Np		: int, number of trimmed points
 ! id_vec	: 1D int, list of original gridpoint numbers
 ! om		: 1D real*8, list of omegas
+! Psi		: 2D real*8, wavefunction
+! g		: 2D real*8, diagonal gmatrix elements for each point
 
 program dvr
   use input
@@ -22,19 +23,20 @@ program dvr
   use linal
   use fprint
   use crd
+  use gmat
 
   implicit none
-  real(kind=8), dimension(:,:), allocatable :: H,Psi  
-  real(kind=8), dimension(:), allocatable :: lb,ub,delx,eval,m,om
+  real(kind=8), dimension(:,:), allocatable :: H,Psi,g
+  real(kind=8), dimension(:), allocatable :: lb,ub,delx,eval,om
   integer, dimension(:), allocatable :: npoints,id_vec,coord
   real(kind=8) :: Vc
   integer :: ndim,pot,N,Np,i,neig,lwork,sys,error
 
   !Get input and coordinate system
-  call input_get(ndim,lb,ub,delx,m,om,pot,coord,npoints,Vc)
+  call input_get(ndim,lb,ub,delx,om,pot,coord,npoints,Vc)
   call crd_get(ndim,coord,sys,error)
   if (error .ne. 0) then
-    call dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi)
+    call dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi,g)
     stop 1
   end if
 
@@ -51,11 +53,14 @@ program dvr
   if (pot .eq. -4) stop
   call V_calc(ndim,npoints,delx,lb,ub,N,pot,coord,Vc,Np,id_vec,H)
   call points_trim(ndim,Np,npoints,delx,lb,coord,id_vec,H) 
-  call T_calc(ndim,npoints,sys,delx,lb,ub,m,om,coord,Np,id_vec,H,error)
+  allocate(g(0:Np-1,0:ndim-1))
+  call gmat_get(ndim,Np,id_vec,g)
+  call T_calc(ndim,npoints,sys,delx,lb,ub,g,om,coord,Np,id_vec,H,error)
   if (error .ne. 0) then
-    call dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi)
+    call dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi,g)
     stop 1
   end if
+  deallocate(g)
 
   !get desired number of eigenvalues
   allocate(eval(0:Np-1))
@@ -87,15 +92,16 @@ contains
 ! dvr_clean
 !	- cleans up memory 
 !---------------------------------------------------------------------
-subroutine dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi)
+subroutine dvr_clean(lb,ub,delx,eval,npoints,id_vec,coord,H,Psi,g)
   implicit none
-  real(kind=8), dimension(:,:), allocatable, intent(inout) :: H,Psi  
+  real(kind=8), dimension(:,:), allocatable, intent(inout) :: H,Psi,g  
   real(kind=8), dimension(:), allocatable, intent(inout) :: lb,ub,&
                                                             delx,eval
   integer, dimension(:), allocatable, intent(inout) :: npoints,&
                                                        id_vec,coord
   if (allocated(H)) deallocate(H)
   if (allocated(Psi)) deallocate(Psi)
+  if (allocated(g)) deallocate(g)
   if (allocated(lb)) deallocate(lb)
   if (allocated(ub)) deallocate(ub)
   if (allocated(delx)) deallocate(delx)
